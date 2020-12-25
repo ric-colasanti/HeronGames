@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Making your first Phaser 3 Game - Part 3</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.50.0/dist/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <script type="text/javascript">
+        const BACKGROUND = "background"
+        const PLAYER = "player"
+        const DRAGON = "dragon"
+        const TREASURE = "treasure"
+        const CUTECAT = "cutecat"
+        const CUTECAT2 = "cutecat2"
+        const DOWN = "down"
+        const UP = "up"
+        const LEFT = "left"
+        const RIGHT = "right"
+        const ARENA = "arena"
+        const TILES = "tiles"
+
+        let gameScene = new Phaser.Scene('Game');
+        var cursors;
+        var pointer;
+        var wall;
+        var worldPoint;
+        var config = {
+            type: Phaser.AUTO,
+            width: 320,
+            height: 320,
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: {
+                        y: 0
+                    },
+                    debug: true
+                }
+            },
+            scene: [gameScene],
+            scale: {
+                zoom: 1
+            }
+        };
+
+        let game = new Phaser.Game(config);
+
+
+  
+        gameScene.dchangeDirection= function(dir){
+            switch(dir){
+                case 0:
+                    this.player.setVelocity(-this.playerSpeed, 0)
+                    this.player.currentState = LEFT
+                    this.player.anims.play(this.player.currentState, true);
+                break;
+                case 1:
+                    this.player.setVelocity(this.playerSpeed, 0)
+                    this.player.currentState = RIGHT
+                    this.player.anims.play(this.player.currentState, true);  
+                break;
+                case 2:
+                    this.player.setVelocity(0, -this.playerSpeed)
+                    this.player.currentState = UP
+                    this.player.anims.play(this.player.currentState, true);
+                break;
+                case 3:
+                    this.player.setVelocity(0, +this.playerSpeed)
+                    this.player.currentState = DOWN
+                    this.player.anims.play(this.player.currentState, true);
+                break;
+            }
+        }
+        gameScene.preload = function () {
+            this.load.tilemapTiledJSON('tilemap', 'assets/tilemaps/level0.json');
+            this.load.image('tiles', 'assets/images/tiles_spritesheet.png');
+            this.load.spritesheet(CUTECAT2, 'assets/cutecat3.png', {
+                frameWidth: 32,
+                frameHeight: 32
+            });
+        }
+        gameScene.init = function () {
+            this.playerSpeed = 100;
+        }
+        gameScene.create = function () {
+            //this.add.image(0, 0, 'base_tiles')
+            const map = this.make.tilemap({
+                key: 'tilemap'
+            })
+            // add the tileset image we are using
+            const tileset = map.addTilesetImage('tiles_spritesheet', 'tiles')
+
+            // create the layers we want in the right order
+            const test = map.createDynamicLayer('Ground', tileset)
+             wall = map.createDynamicLayer('Bounds', tileset, 0, 0)
+            const obj = wall.putTileAt(95, 8, 4);
+            obj.setCollision(true)
+            wall.setCollisionByProperty({
+                colide: true
+            })
+            // const debugGraphics = this.add.graphics().setAlpha(0.75);
+            // wall.renderDebug(debugGraphics, {
+            //     tileColor: null, // new Phaser.Display.Color(243, 134, 48, 255), // Color of non-colliding tiles
+            //     collidingTileColor: new Phaser.Display.Color(43, 134, 48, 255), // Color of colliding tiles
+            //     faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
+            // });
+
+
+            this.player = this.physics.add.sprite(34, 36, CUTECAT2);
+            this.player.currentState = DOWN
+            this.player.setVelocity(0, +this.playerSpeed)
+
+
+            // treasure
+
+
+            this.anims.create({
+                key: RIGHT,
+                frames: this.anims.generateFrameNumbers(CUTECAT2, {
+                    start: 6,
+                    end: 8
+                }),
+                frameRate: 10,
+                repeat: -1
+            });
+            this.anims.create({
+                key: DOWN,
+                frames: this.anims.generateFrameNumbers(CUTECAT2, {
+                    start: 0,
+                    end: 2
+                }),
+                frameRate: 10,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: UP,
+                frames: this.anims.generateFrameNumbers(CUTECAT2, {
+                    start: 9,
+                    end: 11
+                }),
+                frameRate: 10,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: LEFT,
+                frames: this.anims.generateFrameNumbers(CUTECAT2, {
+                    start: 3,
+                    end: 5
+                }),
+                frameRate: 10,
+                repeat: -1
+            });
+            this.physics.add.collider(this.player, wall,function(){
+               let dir =  Math.floor(Math.random() * 4);
+               console.log(dir);
+               gameScene.dchangeDirection(dir)
+            });
+            cursors = this.input.keyboard.createCursorKeys();
+            pointer = this.input.activePointer;
+            this.player.setCollideWorldBounds(true);
+            
+            
+            
+
+        }
+
+        gameScene.update = function () {
+            // check for active input
+            if (cursors.left.isDown) {
+                this.dchangeDirection(0)
+            } else if (cursors.right.isDown) {
+                this.dchangeDirection(1)
+            } else if (cursors.up.isDown) {
+                this.dchangeDirection(2)
+            } else if (cursors.down.isDown) {
+                this.dchangeDirection(3)
+            } 
+            if (pointer.isDown) {
+                const tile = wall.putTileAtWorldXY(95, pointer.x, pointer.y);
+                tile.setCollision(true);
+            }
+
+        }
+    </script>
+
+</body>
+
+</html>
