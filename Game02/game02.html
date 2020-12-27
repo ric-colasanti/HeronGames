@@ -5,16 +5,43 @@
     <meta charset="UTF-8" />
     <title>Roswell Runner</title>
     <link rel="shortcut icon" href="assets/hover.png">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
     <script src="//cdn.jsdelivr.net/npm/phaser@3.50.0/dist/phaser.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@1,700&display=swap" rel="stylesheet">
+    <style>
+        .bgTextBox {
+            background-color: rgb(241, 241, 241);
+            padding: 10px;
+        }
+
+        .bgDemo {
+            border-style: solid;
+            border-width: 0.5px;
+            padding: 10px;
+        }
+
+        .highlight pre {
+            white-space: pre-wrap;
+        }
+        .nav-item{
+            cursor: pointer;
+        }
+    </style>
     <style type="text/css">
         body {
             margin: 0;
+            font-family: 'Luckiest Guy', cursive;
         }
     </style>
 </head>
 
 <body>
-
+    <div class="container">
+    <h3> Roswell Runner</h3>     
+    <div id="game-id"></div>
+    </div>
     <script type="text/javascript">
         const PLAYER1 = "player1"
         const PLAYER2 = "player2"
@@ -39,7 +66,8 @@
             scale: {
                 zoom: 1,
                 autoCenter: Phaser.Scale.CENTER_BOTH
-            }
+            },
+            parent: 'game-id'
         };
 
         let game = new Phaser.Game(config);
