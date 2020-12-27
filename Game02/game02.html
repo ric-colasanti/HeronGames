@@ -67,12 +67,12 @@
         }
         gameScene.create = function () {
 
-            this.bg_1 = this.add.tileSprite(0, 0, game.config.width, game.config.height, "sky");
+            this.bg_1 = this.add.tileSprite(-400, -90, game.config.width+800, game.config.height, "sky");
             // Set its pivot to the top left corner
             this.bg_1.setOrigin(0, 0);
             // fixe it so it won't move when the camera moves.
             // Instead we are moving its texture on the update
-            this.bg_1.setScrollFactor(0)
+            this.bg_1.setScrollFactor(0.05)
             //this.add.image(0, 0, 'base_tiles')
             this.bg_2 = this.add.tileSprite(0, -10, 5000, game.config.height, "rocks");
             this.bg_2.setOrigin(0, 0);
@@ -191,8 +191,8 @@
                 this.player2.setVelocityX(-360);
 
             } else if (cursors.right.isDown) {
+                v = this.player2.body.velocity.x
                 this.player2.setVelocityX(360);
-
             } else if (cursors.down.isDown) {
                 this.player2.setVelocityY(230);
             } else if (cursors.up.isDown) {
