@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>Roswell Runner</title>
+    <link rel="shortcut icon" href="assets/hover.png">
     <script src="//cdn.jsdelivr.net/npm/phaser@3.50.0/dist/phaser.js"></script>
     <style type="text/css">
         body {
@@ -36,7 +37,8 @@
             },
             scene: [gameScene],
             scale: {
-                zoom: 1
+                zoom: 1,
+                autoCenter: Phaser.Scale.CENTER_BOTH
             }
         };
 
@@ -207,7 +209,6 @@
             this.player1.setVelocityX(160)
         }
     </script>
-
 </body>
 
 </html>
