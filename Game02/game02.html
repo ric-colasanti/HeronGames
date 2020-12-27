@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Roswell Runner</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.50.0/dist/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <script type="text/javascript">
+        const PLAYER1 = "player1"
+        const PLAYER2 = "player2"
+        const DEBUG = false
+        let gameScene = new Phaser.Scene('Game');
+        var cursors;
+        var pointer;
+        var wall;
+        var worldPoint;
+        var flag = false
+        var config = {
+            type: Phaser.AUTO,
+            width: 920,
+            height: 640,
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    debug: DEBUG
+                }
+            },
+            scene: [gameScene],
+            scale: {
+                zoom: 1
+            }
+        };
+
+        let game = new Phaser.Game(config);
+        gameScene.preload = function () {
+            this.load.tilemapTiledJSON('tilemap', 'assets/platform1.json');
+            this.load.image('tiles', 'assets/tilesheet_complete.png');
+            this.load.image('coin', 'assets/coinGold.png')
+            //this.load.spritesheet('dude', 'assets/spr_kanako_run_32x64_4-frames.png', { frameWidth: 32, frameHeight: 62 });
+            // this.load.spritesheet('dude', 'assets/female_tilesheet.png', { frameWidth: 80, frameHeight: 112 });
+            this.load.spritesheet(PLAYER1, 'assets/p1_walk.png', {
+                frameWidth: 66,
+                frameHeight: 93
+            });
+            this.load.spritesheet(PLAYER2, 'assets/hover.png', {
+                frameWidth: 123,
+                frameHeight: 68
+            });
+            this.load.image('sky', 'assets/sky.png');
+            this.load.image('rocks', 'assets/Rocks.png');
+            this.load.image('ground', 'assets/Layer1.png');
+        }
+        gameScene.togle = function (obj) {
+            console.log(this, "togle");
+            obj.flag = true
+        }
+        gameScene.create = function () {
+
+            this.bg_1 = this.add.tileSprite(0, 0, game.config.width, game.config.height, "sky");
+            // Set its pivot to the top left corner
+            this.bg_1.setOrigin(0, 0);
+            // fixe it so it won't move when the camera moves.
+            // Instead we are moving its texture on the update
+            this.bg_1.setScrollFactor(0)
+            //this.add.image(0, 0, 'base_tiles')
+            this.bg_2 = this.add.tileSprite(0, -10, 5000, game.config.height, "rocks");
+            this.bg_2.setOrigin(0, 0);
+            this.bg_2.setScrollFactor(0.5);
+            const map = this.make.tilemap({
+                key: 'tilemap'
+            })
+
+            // add the tileset image we are using
+            const tileset = map.addTilesetImage('tilesheet_complete', 'tiles')
+            const coins = map.getObjectLayer('Object Layer 1')
+            const gcoins = this.physics.add.staticGroup()
+            console.log(coins.objects);
+            for (c in coins.objects) {
+                gcoins.create(coins.objects[c].x + 32, coins.objects[c].y, 'coin');
+            }
+            // create the layers we want in the right order
+            //const test = map.createLayer('background', tileset)
+            wall = map.createLayer('ground', tileset, 0, 0)
+            wall.setCollisionByProperty({
+                colide: true
+            })
+            if (DEBUG) {
+                const debugGraphics = this.add.graphics().setAlpha(0.75);
+                wall.renderDebug(debugGraphics, {
+                    tileColor: null, // new Phaser.Display.Color(243, 134, 48, 255), // Color of non-colliding tiles
+                    collidingTileColor: new Phaser.Display.Color(244, 134, 48,
+                    255), // Color of colliding tiles
+                    faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
+                });
+
+
+            }
+
+
+
+
+
+
+            this.cameras.main.setBounds(0, 0, wall.displayWidth, wall.displayHeight);
+            this.player1 = this.physics.add.sprite(120, 420, PLAYER1).setInteractive();
+            this.player2 = this.physics.add.sprite(420, 420, PLAYER2).setInteractive();
+            this.player1.setGravityY(300)
+            this.player1.on('pointerdown', function (pointer) {
+                this.setVelocityY(-130);
+            });
+
+            this.cameras.main.startFollow(this.player2, true);
+            this.player1.setBounce(0.2);
+            this.player1.setVelocityX(190);
+            this.player1.flag = false
+            this.physics.add.collider(this.player1, wall)
+            this.physics.add.collider(this.player2, wall)
+            this.physics.add.overlap(this.player1, this.player2, function (ob1, ob2) {
+                ob1.flag = true
+            })
+            this.physics.add.overlap(this.player1, gcoins, function collectStar(player, star) {
+                star.disableBody(true, true);
+            })
+
+            this.bg_3 = this.add.tileSprite(0, 490, 14000, game.config.height, "ground");
+            this.bg_3.setOrigin(0, 0);
+            this.bg_3.setScrollFactor(1.5);
+
+            this.anims.create({
+                key: 'hover',
+                frames: this.anims.generateFrameNumbers(PLAYER2, {
+                    start: 0,
+                    end: 2
+                }),
+                frameRate: 5,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: '1left',
+                frames: this.anims.generateFrameNumbers(PLAYER1, {
+                    start: 0,
+                    end: 4
+                }),
+                frameRate: 10,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: '1turn',
+                frames: [{
+                    key: PLAYER1,
+                    frame: 4
+                }],
+                frameRate: 20
+            });
+
+            this.anims.create({
+                key: '1right',
+                frames: this.anims.generateFrameNumbers(PLAYER1, {
+                    start: 0,
+                    end: 4
+                }),
+                frameRate: 10,
+                repeat: -1
+            });
+            this.player1.anims.play('1right', true);
+            this.player2.anims.play('hover', true);
+
+            //  Input Events
+            cursors = this.input.keyboard.createCursorKeys();
+
+
+        }
+        gameScene.onClicked = function (pointer) {
+            this.player1.setVelocityY(-130);
+        }
+        gameScene.update = function () {
+            if (cursors.left.isDown) {
+                this.player2.setVelocityX(-360);
+
+            } else if (cursors.right.isDown) {
+                this.player2.setVelocityX(360);
+
+            } else if (cursors.down.isDown) {
+                this.player2.setVelocityY(230);
+            } else if (cursors.up.isDown) {
+                this.player2.setVelocityY(-230);
+            } else {
+                this.player2.setVelocityX(0);
+                this.player2.setVelocityY(0);
+
+            }
+            if (this.player1.flag) {
+                this.player1.setVelocityY(-260)
+                this.player1.flag = false
+            }
+            this.player1.setVelocityX(160)
+        }
+    </script>
+
+</body>
+
+</html>

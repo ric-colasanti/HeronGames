@@ -27,10 +27,7 @@
             physics: {
                 default: 'arcade',
                 arcade: {
-                    gravity: {
-                        y: 100
-                    },
-                    debug: false
+                    debug: true
                 }
             },
             scene: [gameScene],
@@ -45,7 +42,11 @@
             this.load.image('tiles', 'assets/tilesheet_complete.png');
             //this.load.spritesheet('dude', 'assets/spr_kanako_run_32x64_4-frames.png', { frameWidth: 32, frameHeight: 62 });
             // this.load.spritesheet('dude', 'assets/female_tilesheet.png', { frameWidth: 80, frameHeight: 112 });
-            this.load.spritesheet('dude', 'assets/p3_walk.png', {
+            this.load.spritesheet('dude1', 'assets/p3_walk.png', {
+                frameWidth: 66,
+                frameHeight: 93
+            });
+            this.load.spritesheet('dude2', 'assets/p1_walk.png', {
                 frameWidth: 66,
                 frameHeight: 93
             });
@@ -70,20 +71,18 @@
             })
             // add the tileset image we are using
             const tileset = map.addTilesetImage('tilesheet_complete', 'tiles')
-
             // create the layers we want in the right order
-            const test = map.createDynamicLayer('background', tileset)
-            wall = map.createDynamicLayer('ground', tileset, 0, 0)
+            wall = map.createLayer('ground', tileset, 0, 0)
             wall.setCollisionByProperty({
                 colide: true
             })
-            //  const debugGraphics = this.add.graphics().setAlpha(0.75);
-            //   wall.renderDebug(debugGraphics, {
-            //        tileColor: null, // new Phaser.Display.Color(243, 134, 48, 255), // Color of non-colliding tiles
-            //        collidingTileColor: new Phaser.Display.Color(244, 134, 48, 255), // Color of colliding tiles
-            //       faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
-            //   });
-            //
+            const debugGraphics = this.add.graphics().setAlpha(0.75);
+               wall.renderDebug(debugGraphics, {
+                    tileColor: null, // new Phaser.Display.Color(243, 134, 48, 255), // Color of non-colliding tiles
+                    collidingTileColor: new Phaser.Display.Color(244, 134, 48, 255), // Color of colliding tiles
+                   faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
+               });
+            
 
 
 
@@ -92,46 +91,48 @@
 
 
             this.cameras.main.setBounds(0, 0, wall.displayWidth, wall.displayHeight);
-            this.player = this.physics.add.sprite(20, 420, "dude").setInteractive();
+            this.player1 = this.physics.add.sprite(20, 420, "dude").setInteractive();
 
-            this.player.on('pointerdown', function (pointer) {
-                this.setVelocityY(-130);
-            });
-            this.cameras.main.startFollow(this.player, true);
-            this.player.setBounce(0.2);
-            this.player.setVelocityX(260);
-            this.physics.add.collider(this.player, wall)
+            // this.player1.on('pointerdown', function (pointer) {
+            //     this.setVelocityY(-130);
+            // });
+            this.cameras.main.startFollow(this.player1, true);
+            this.player1.setBounce(0.2);
+            this.player1.setGravityY(300)
+            this.player1.setVelocityX(260);
+            this.physics.add.collider(this.player1, wall)
+            this.bg_3 = this.add.tileSprite(0, 490, 14000, game.config.height, "ground");
+            this.bg_3.setOrigin(0, 0);
+            this.bg_3.setScrollFactor(1.5);
+            
             this.anims.create({
-                key: 'left',
-                frames: this.anims.generateFrameNumbers('dude', {
+                key: 'left1',
+                frames: this.anims.generateFrameNumbers('dude1', {
                     start: 0,
                     end: 4
                 }),
                 frameRate: 10,
                 repeat: -1
             });
-            this.bg_3 = this.add.tileSprite(0, 490, 14000, game.config.height, "ground");
-            this.bg_3.setOrigin(0, 0);
-            this.bg_3.setScrollFactor(1.5);
             this.anims.create({
-                key: 'turn',
+                key: 'turn1',
                 frames: [{
-                    key: 'dude',
+                    key: 'dude1',
                     frame: 4
                 }],
                 frameRate: 20
             });
 
             this.anims.create({
-                key: 'right',
-                frames: this.anims.generateFrameNumbers('dude', {
+                key: 'right1',
+                frames: this.anims.generateFrameNumbers('dude1', {
                     start: 0,
                     end: 4
                 }),
                 frameRate: 10,
                 repeat: -1
             });
-            this.player.anims.play('right', true);
+            this.player1.anims.play('right1', true);
 
             //  Input Events
             cursors = this.input.keyboard.createCursorKeys();
@@ -142,27 +143,24 @@
             this.player.setVelocityY(-130);
         }
         gameScene.update = function () {
-            //           if (cursors.left.isDown)
-            //   {
-            //       this.player.setVelocityX(-160);
+                      if (cursors.left.isDown)
+              {
+                  this.player1.setVelocityX(-160);
 
-            //        this.player.anims.play('left', true);
-            //  }
-            // else 
-            if (cursors.right.isDown) {
-                this.player.setVelocityX(160);
+                   this.player1.anims.play('left1', true);
+             }
+            else if (cursors.right.isDown) {
+                this.player1.setVelocityX(160);
 
-                this.player.anims.play('right', true);
+                this.player1.anims.play('right1', true);
             }
-            //else
-            //{
-            //    this.player.setVelocityX(0);
-            //
-            //      this.player.anims.play('turn');
-            // }
+           
 
             if (cursors.up.isDown) {
-                this.player.setVelocityY(-130);
+                this.player1.setVelocityY(-130);
+            }
+            if (cursors.down.isDown) {
+                this.player1.setVelocityY(130);
             }
 
         }
