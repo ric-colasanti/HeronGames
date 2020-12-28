@@ -3,169 +3,46 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>Making your first Phaser 3 Game - Part 3</title>
+    <title>Roswell Runner</title>
+    <link rel="shortcut icon" href="assets/hover.png">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
     <script src="//cdn.jsdelivr.net/npm/phaser@3.50.0/dist/phaser.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@1,700&display=swap" rel="stylesheet">
+    <style>
+        .bgTextBox {
+            background-color: rgb(241, 241, 241);
+            padding: 10px;
+        }
+
+        .bgDemo {
+            border-style: solid;
+            border-width: 0.5px;
+            padding: 10px;
+        }
+
+        .highlight pre {
+            white-space: pre-wrap;
+        }
+        .nav-item{
+            cursor: pointer;
+        }
+    </style>
     <style type="text/css">
         body {
             margin: 0;
+            font-family: 'Luckiest Guy', cursive;
         }
     </style>
 </head>
 
 <body>
-
-    <script type="text/javascript">
-        let gameScene = new Phaser.Scene('Game');
-        var cursors;
-        var pointer;
-        var wall;
-        var worldPoint;
-        var config = {
-            type: Phaser.AUTO,
-            width: 920,
-            height: 640,
-            physics: {
-                default: 'arcade',
-                arcade: {
-                    debug: true
-                }
-            },
-            scene: [gameScene],
-            scale: {
-                zoom: 1
-            }
-        };
-
-        let game = new Phaser.Game(config);
-        gameScene.preload = function () {
-            this.load.tilemapTiledJSON('tilemap', 'assets/platform1.json');
-            this.load.image('tiles', 'assets/tilesheet_complete.png');
-            //this.load.spritesheet('dude', 'assets/spr_kanako_run_32x64_4-frames.png', { frameWidth: 32, frameHeight: 62 });
-            // this.load.spritesheet('dude', 'assets/female_tilesheet.png', { frameWidth: 80, frameHeight: 112 });
-            this.load.spritesheet('dude1', 'assets/p3_walk.png', {
-                frameWidth: 66,
-                frameHeight: 93
-            });
-            this.load.spritesheet('dude2', 'assets/p1_walk.png', {
-                frameWidth: 66,
-                frameHeight: 93
-            });
-            this.load.image('sky', 'assets/sky.png');
-            this.load.image('rocks', 'assets/Rocks.png');
-            this.load.image('ground', 'assets/Layer1.png');
-        }
-        gameScene.create = function () {
-
-            this.bg_1 = this.add.tileSprite(0, 0, game.config.width, game.config.height, "sky");
-            // Set its pivot to the top left corner
-            this.bg_1.setOrigin(0, 0);
-            // fixe it so it won't move when the camera moves.
-            // Instead we are moving its texture on the update
-            this.bg_1.setScrollFactor(0)
-            //this.add.image(0, 0, 'base_tiles')
-            this.bg_2 = this.add.tileSprite(0, -10, 5000, game.config.height, "rocks");
-            this.bg_2.setOrigin(0, 0);
-            this.bg_2.setScrollFactor(0.5);
-            const map = this.make.tilemap({
-                key: 'tilemap'
-            })
-            // add the tileset image we are using
-            const tileset = map.addTilesetImage('tilesheet_complete', 'tiles')
-            // create the layers we want in the right order
-            wall = map.createLayer('ground', tileset, 0, 0)
-            wall.setCollisionByProperty({
-                colide: true
-            })
-            const debugGraphics = this.add.graphics().setAlpha(0.75);
-               wall.renderDebug(debugGraphics, {
-                    tileColor: null, // new Phaser.Display.Color(243, 134, 48, 255), // Color of non-colliding tiles
-                    collidingTileColor: new Phaser.Display.Color(244, 134, 48, 255), // Color of colliding tiles
-                   faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
-               });
-            
-
-
-
-            ;
-
-
-
-            this.cameras.main.setBounds(0, 0, wall.displayWidth, wall.displayHeight);
-            this.player1 = this.physics.add.sprite(20, 420, "dude").setInteractive();
-
-            // this.player1.on('pointerdown', function (pointer) {
-            //     this.setVelocityY(-130);
-            // });
-            this.cameras.main.startFollow(this.player1, true);
-            this.player1.setBounce(0.2);
-            this.player1.setGravityY(300)
-            this.player1.setVelocityX(260);
-            this.physics.add.collider(this.player1, wall)
-            this.bg_3 = this.add.tileSprite(0, 490, 14000, game.config.height, "ground");
-            this.bg_3.setOrigin(0, 0);
-            this.bg_3.setScrollFactor(1.5);
-            
-            this.anims.create({
-                key: 'left1',
-                frames: this.anims.generateFrameNumbers('dude1', {
-                    start: 0,
-                    end: 4
-                }),
-                frameRate: 10,
-                repeat: -1
-            });
-            this.anims.create({
-                key: 'turn1',
-                frames: [{
-                    key: 'dude1',
-                    frame: 4
-                }],
-                frameRate: 20
-            });
-
-            this.anims.create({
-                key: 'right1',
-                frames: this.anims.generateFrameNumbers('dude1', {
-                    start: 0,
-                    end: 4
-                }),
-                frameRate: 10,
-                repeat: -1
-            });
-            this.player1.anims.play('right1', true);
-
-            //  Input Events
-            cursors = this.input.keyboard.createCursorKeys();
-
-
-        }
-        gameScene.onClicked = function (pointer) {
-            this.player.setVelocityY(-130);
-        }
-        gameScene.update = function () {
-                      if (cursors.left.isDown)
-              {
-                  this.player1.setVelocityX(-160);
-
-                   this.player1.anims.play('left1', true);
-             }
-            else if (cursors.right.isDown) {
-                this.player1.setVelocityX(160);
-
-                this.player1.anims.play('right1', true);
-            }
-           
-
-            if (cursors.up.isDown) {
-                this.player1.setVelocityY(-130);
-            }
-            if (cursors.down.isDown) {
-                this.player1.setVelocityY(130);
-            }
-
-        }
-    </script>
-
+    <div class="container">
+    <h3> Roswell Runner</h3>     
+    <div id="game-id"></div>
+    </div>
+    <script src="js/game.js"></script> 
 </body>
 
 </html>
