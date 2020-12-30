@@ -169,7 +169,7 @@ startScene.create = function(){
 }
 
 endScene.create = function(){
-    this.add.text(370, 120, 'Game over!', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
+    this.add.text(370, 120, 'Game over !', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
     this.add.text(280, 220, 'Click space key to restart', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
     this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     this.spaceKey.on('down', function (key, event) {
