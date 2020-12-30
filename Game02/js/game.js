@@ -3,6 +3,8 @@ const PLAYER2 = "player2"
 const ENEMIE1 = "enemie1"
 const DEBUG = false
 let gameScene = new Phaser.Scene('Game');
+let startScene = new Phaser.Scene('Start');
+let endScene = new Phaser.Scene('End');
 
 
 
@@ -56,11 +58,14 @@ class Ship extends Player {
         } else if (cursors.down.isDown) {
             this.setVelocityY(230);
         } else if (cursors.up.isDown) {
-            console.log("ship ");
             this.setVelocityY(-230);
         } else {
             this.setVelocityX(0);
             this.setVelocityY(0);
+        }
+        if(this.x<0){
+            this.setVelocityX(0)
+            this.setX(2)
         }
     }
 }
@@ -74,10 +79,12 @@ class Alien extends Player {
         this.live = true
     }
     update(cursors) {
-        if(this.x>5000){
-            this.setX(5001)
+        if(this.x>5100){
+            this.setX(5101)
             this.setVelocityX(0)
             this.anims.play('stop', true);
+            this.scene.sound.stopAll();
+            this.scene.scene.start('End');
         }else{
             if(this.live){
                 this.setVelocityX(160)
@@ -89,10 +96,12 @@ class Alien extends Player {
                 this.setY(40)
                 if(this.live == false){
                     this.disableBody(true, true);
+                    this.scene.sound.stopAll();
+                    this.scene.scene.start('End');
                 }
             }
-            if(this.x>5000){
-                this.setX(4999)
+            if(this.x>5200){
+                this.setX(5199)
                 this.setVelocityX(0)
             }
         }
@@ -102,6 +111,11 @@ class Alien extends Player {
         this.anims.play('dead', true);
     }
     hitTile(tile){
+        if(this.live==false){
+            this.disableBody(true, true);
+            this.scene.sound.stopAll();
+            this.scene.scene.start('End');
+        }
         if (tile.properties.death){
             this.die()
         };
@@ -116,13 +130,14 @@ var config = {
     type: Phaser.AUTO,
     width: 920,
     height: 640,
+    backgroundColor: '#5E35B1',
     physics: {
         default: 'arcade',
         arcade: {
             debug: DEBUG
         }
     },
-    scene: [gameScene],
+    scene: [startScene,gameScene,endScene],
     scale: {
         zoom: 1,
         autoCenter: Phaser.Scale.CENTER_BOTH
@@ -130,7 +145,35 @@ var config = {
     parent: 'game-id'
 };
 
-let game = new Phaser.Game(config);
+startScene.create = function(){
+    this.add.text(230, 20, 'Welcome to Roswell runner ', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
+    this.add.text(180, 60, 'One of the little bods from area 51', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
+    this.add.text(220, 100, 'Is trying to escape to route 66', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
+    this.add.text(90, 140, 'Our plucky alien will need some bus fare though !', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
+    this.add.text(60, 180, 'Help your new chum avoid dangers and collect coins', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
+    this.add.text(110, 230, 'Give your alien a boost with your spacecraft ', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
+    this.add.text(190, 270, 'Move your craft with arrow keys', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
+    this.add.text(150, 320, 'But don,t let your alien chum fall too far!', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
+    this.add.text(260, 380, 'Click space key to start', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
+    this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    this.spaceKey.on('down', function (key, event) {
+        startScene.scene.start('Game');
+    });
+    
+}
+
+endScene.create = function(){
+    this.add.text(370, 120, 'Game over!', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
+    this.add.text(280, 220, 'Click space key to restart', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
+    this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    this.spaceKey.on('down', function (key, event) {
+        endScene.scene.start('Game');
+    });
+}
+
+
+
+
 gameScene.preload = function () {
     this.load.tilemapTiledJSON('tilemap', 'assets/platform1.json');
     this.load.image('tiles', 'assets/tilesheet_complete.png');
@@ -151,6 +194,13 @@ gameScene.preload = function () {
     this.load.image('rocks', 'assets/Rocks.png');
     this.load.image('ground', 'assets/Layer1.png');
     this.load.image('hills', 'assets/Vrstva 8.png');
+    this.load.audio('bgmusic', ['assets/Arcade-game-music-loop.mp3' ]);
+    this.load.audio('bounce', ['assets/forceField_001.ogg' ]);
+    this.load.audio('coin', ['assets/impactGlass_medium_003.ogg' ]);
+
+
+// *true* param enables looping
+
 }
 
 gameScene.create = function () {
@@ -169,11 +219,8 @@ gameScene.create = function () {
 
     this.player1 = new Alien(this, 120, 420, PLAYER1)
     this.player2 = new Ship(this, 420, 420, PLAYER2)
-    this.enemie1 = new Enemie(this,5000,130,ENEMIE1)
+    this.enemie1 = new Enemie(this,4500,140,ENEMIE1)
     
-    
-
-
 
     const map = this.make.tilemap({
         key: 'tilemap'
@@ -181,7 +228,6 @@ gameScene.create = function () {
 
    
     const tileset = map.addTilesetImage('tilesheet_complete', 'tiles')
-    console.log(map.width*32);
     this.colide = map.createLayer('ground', tileset, 0, 0)
     this.colide.setCollisionByProperty({
         colide: true
@@ -207,18 +253,18 @@ gameScene.create = function () {
     this.physics.add.collider(this.player2, this.colide)
     this.physics.add.overlap(this.player1, this.player2, function (ob1, ob2) {
         if(ob1.live){
+            gameScene.bounceSound.play()
             ob1.setVelocityY(-260)
         }
     })
     this.physics.add.overlap(this.player1, gcoins, function collectStar(player, star) {
+        gameScene.coinSound.play()
+        gameScene.score++
         star.disableBody(true, true);
     })
     this.physics.add.overlap(this.player1, this.enemie1, function (player, enemie) {
         player.die()
     })
-
-
-
 
     this.player1.addAnim('right', [0,1,2,3,4])
     this.player1.addAnim('stop', [0])
@@ -242,10 +288,21 @@ gameScene.create = function () {
             faceColor: new Phaser.Display.Color(40, 39, 37, 255) 
         });
     }
+    music = this.sound.add('bgmusic')
+    music.play();
+    this.bounceSound = this.sound.add('bounce')
+    this.coinSound = this.sound.add('coin')
+    this.score =0
+    this.text = this.add.text(20, 20, 'Score: '+this.score, { fontFamily: 'Luckiest Guy', fontSize: '30px'});
+    this.text.setScrollFactor(0.0);
 }
 
 gameScene.update = function () {
     this.player1.update(this.cursors)
     this.player2.update(this.cursors)
     this.enemie1.update(this.cursors)
+    this.text.text= 'Score   : '+this.score
 }
+
+
+let game = new Phaser.Game(config);
