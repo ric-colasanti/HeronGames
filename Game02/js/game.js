@@ -109,12 +109,15 @@ class Alien extends Player {
     die(){
         this.live =false
         this.anims.play('dead', true);
+        this.scene.sound.stopAll();
+        this.scene.oopsSound.play()
     }
     hitTile(tile){
         if(this.live==false){
             this.disableBody(true, true);
             this.scene.sound.stopAll();
             this.scene.scene.start('End');
+            
         }
         if (tile.properties.death){
             this.die()
@@ -197,6 +200,7 @@ gameScene.preload = function () {
     this.load.audio('bgmusic', ['assets/Arcade-game-music-loop.mp3' ]);
     this.load.audio('bounce', ['assets/forceField_001.ogg' ]);
     this.load.audio('coin', ['assets/impactGlass_medium_003.ogg' ]);
+    this.load.audio('oops', ['assets/secret.ogg' ]);
 
 
 // *true* param enables looping
@@ -292,6 +296,7 @@ gameScene.create = function () {
     music.play();
     this.bounceSound = this.sound.add('bounce')
     this.coinSound = this.sound.add('coin')
+    this.oopsSound = this.sound.add('oops')
     this.score =0
     this.text = this.add.text(20, 20, 'Score: '+this.score, { fontFamily: 'Luckiest Guy', fontSize: '30px'});
     this.text.setScrollFactor(0.0);
@@ -304,5 +309,4 @@ gameScene.update = function () {
     this.text.text= 'Score   : '+this.score
 }
 
-
-let game = new Phaser.Game(config);
+var game = new Phaser.Game(config);
