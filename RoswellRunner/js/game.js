@@ -147,8 +147,11 @@ var config = {
     },
     parent: 'game-id'
 };
-
+startScene.preload = function () {
+    this.load.image('ufo', 'assets/icon.png');
+}
 startScene.create = function(){
+    this.add.tileSprite(100, 80,123,130, "ufo");
     this.add.text(230, 20, 'Welcome to Roswell runner ', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
     this.add.text(180, 60, 'One of the little bods from area 51', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
     this.add.text(220, 100, 'Is trying to escape to route 66', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
