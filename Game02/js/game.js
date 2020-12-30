@@ -153,7 +153,7 @@ startScene.create = function(){
     this.add.text(60, 180, 'Help your new chum avoid dangers and collect coins', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
     this.add.text(110, 230, 'Give your alien a boost with your spacecraft ', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
     this.add.text(190, 270, 'Move your craft with arrow keys', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
-    this.add.text(150, 320, 'But don,t let your alien chum fall too far!', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
+    this.add.text(150, 320, 'But don,t let your alien chum fall too far !', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
     this.add.text(260, 380, 'Click space key to start', { fontFamily: 'Luckiest Guy', fontSize: '30px'});
     this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     this.spaceKey.on('down', function (key, event) {
