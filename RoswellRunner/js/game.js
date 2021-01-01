@@ -2,6 +2,7 @@ const PLAYER1 = "player1"
 const PLAYER2 = "player2"
 const ENEMIE1 = "enemie1"
 const DEBUG = false
+var flag = true
 
 
 
@@ -98,6 +99,7 @@ class Alien extends Player {
             this.setVelocityX(0)
             this.anims.play('stop', true);
             this.scene.sound.stopAll();
+            this.scene.stop()
             this.scene.scene.start('End');
         } else {
             if (this.live) {
@@ -110,8 +112,7 @@ class Alien extends Player {
                 this.setY(40)
                 if (this.live == false) {
                     this.disableBody(true, true);
-                    this.scene.sound.stopAll();
-                    this.scene.scene.start('End');
+                    this.scene.restartGame()
                 }
             }
             if (this.x > 5200) {
@@ -211,9 +212,7 @@ class EndScene extends Phaser.Scene {
         });
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.spaceKey.on('down', function (key, event) {
-            text.text = ""
-            text2.text = ""
-            gameScene.scene.restart();
+            endScene.scene.start('Game');
         });
     }
 }
@@ -223,129 +222,134 @@ class GameScene extends Phaser.Scene {
         super("Game");
     }
     preload() {
-        this.load.tilemapTiledJSON('tilemap', 'assets/platform1.json');
-        this.load.image('tiles', 'assets/tilesheet_complete.png');
-        this.load.image('coin', 'assets/coinGold.png')
-        this.load.spritesheet(PLAYER1, 'assets/p3_walk.png', {
-            frameWidth: 66,
-            frameHeight: 93
-        });
-        this.load.spritesheet(PLAYER2, 'assets/hover.png', {
-            frameWidth: 123,
-            frameHeight: 72
-        });
-        this.load.spritesheet(ENEMIE1, 'assets/fly_fly.png', {
-            frameWidth: 66,
-            frameHeight: 43
-        });
-        this.load.image('sky', 'assets/sky.png');
-        this.load.image('rocks', 'assets/Rocks.png');
-        this.load.image('ground', 'assets/Layer1.png');
-        this.load.audio('bgmusic', ['assets/Arcade-game-music-loop.mp3']);
-        this.load.audio('bounce', ['assets/forceField_001.ogg']);
-        this.load.audio('coin', ['assets/impactGlass_medium_003.ogg']);
-        this.load.audio('oops', ['assets/secret.ogg']);
+            this.load.tilemapTiledJSON('tilemap', 'assets/platform1.json');
+            this.load.image('tiles', 'assets/tilesheet_complete.png');
+            this.load.image('coin', 'assets/coinGold.png')
+            this.load.spritesheet(PLAYER1, 'assets/p3_walk.png', {
+                frameWidth: 66,
+                frameHeight: 93
+            });
+            this.load.spritesheet(PLAYER2, 'assets/hover.png', {
+                frameWidth: 123,
+                frameHeight: 72
+            });
+            this.load.spritesheet(ENEMIE1, 'assets/fly_fly.png', {
+                frameWidth: 66,
+                frameHeight: 43
+            });
+            this.load.image('sky', 'assets/sky.png');
+            this.load.image('rocks', 'assets/Rocks.png');
+            this.load.image('ground', 'assets/Layer1.png');
+            this.load.audio('bgmusic', ['assets/Arcade-game-music-loop.mp3']);
+            this.load.audio('bounce', ['assets/forceField_001.mp3']);
+            this.load.audio('coin', ['assets/impactGlass_medium_003.mp3']);
+            this.load.audio('oops', ['assets/secret.mp3']);
+    
+     
     }
     create() {
-        this.bg_1 = this.add.tileSprite(-400, -30, game.config.width + 800, game.config.height, "sky");
-        this.bg_1.setOrigin(0, 0);
-        this.bg_1.setScrollFactor(0.05)
-
-        this.bg_2 = this.add.tileSprite(0, -10, 5000, game.config.height, "rocks");
-        this.bg_2.setOrigin(0, 0);
-        this.bg_2.setScrollFactor(0.5);
-
-        this.bg_3 = this.add.tileSprite(200, 150, 5000, game.config.height, "rocks");
-        this.bg_3.setOrigin(0, 0);
-        this.bg_3.setScrollFactor(0.7);
-
-        this.player1 = new Alien(this, 120, 420, PLAYER1)
-        this.player2 = new Ship(this, 420, 420, PLAYER2)
-        this.enemies = this.add.group()
-        this.enemies.add(new Enemie(this, 4500, 140, ENEMIE1))
-        this.enemies.add(new Enemie(this, 3400, 400, ENEMIE1))
-
-        const map = this.make.tilemap({
-            key: 'tilemap'
-        })
-
-
-        const tileset = map.addTilesetImage('tilesheet_complete', 'tiles')
-        this.colide = map.createLayer('ground', tileset, 0, 0)
-        this.colide.setCollisionByProperty({
-            colide: true
-        })
-
-        const coins = map.getObjectLayer('Object Layer 1')
-        const gcoins = this.physics.add.staticGroup()
-        for (var c in coins.objects) {
-            gcoins.create(coins.objects[c].x + 32, coins.objects[c].y, 'coin');
-        }
-
-        this.bg_4 = this.add.tileSprite(0, 490, 14000, game.config.height, "ground");
-        this.bg_4.setOrigin(0, 0);
-        this.bg_4.setScrollFactor(1.5);
-
-        this.cameras.main.startFollow(this.player2, true);
-        this.cameras.main.setBounds(0, 0, this.colide.displayWidth, this.colide.displayHeight);
-
-        this.physics.add.collider(this.player1, this.colide, function (player, tile) {
-            player.hitTile(tile)
-        })
-        this.physics.add.collider(this.player2, this.colide)
-        this.physics.add.overlap(this.player1, this.player2, function (ob1, ob2) {
-            if (ob1.live) {
-                gameScene.bounceSound.play()
-                ob1.setVelocityY(-260)
+        
+            this.bg_1 = this.add.tileSprite(-400, -30, game.config.width + 800, game.config.height, "sky");
+            this.bg_1.setOrigin(0, 0);
+            this.bg_1.setScrollFactor(0.05)
+    
+            this.bg_2 = this.add.tileSprite(0, -10, 5000, game.config.height, "rocks");
+            this.bg_2.setOrigin(0, 0);
+            this.bg_2.setScrollFactor(0.5);
+    
+            this.bg_3 = this.add.tileSprite(200, 150, 5000, game.config.height, "rocks");
+            this.bg_3.setOrigin(0, 0);
+            this.bg_3.setScrollFactor(0.7);
+    
+            this.player1 = new Alien(this, 120, 420, PLAYER1)
+            this.player2 = new Ship(this, 420, 420, PLAYER2)
+            this.enemies = this.add.group()
+            this.enemies.add(new Enemie(this, 4500, 140, ENEMIE1))
+            this.enemies.add(new Enemie(this, 3400, 400, ENEMIE1))
+    
+            const map = this.make.tilemap({
+                key: 'tilemap'
+            })
+    
+    
+            const tileset = map.addTilesetImage('tilesheet_complete', 'tiles')
+            this.colide = map.createLayer('ground', tileset, 0, 0)
+            this.colide.setCollisionByProperty({
+                colide: true
+            })
+    
+            const coins = map.getObjectLayer('Object Layer 1')
+            const gcoins = this.physics.add.staticGroup()
+            for (var c in coins.objects) {
+                gcoins.create(coins.objects[c].x + 32, coins.objects[c].y, 'coin');
             }
-        })
-        this.physics.add.overlap(this.player1, gcoins, function collectStar(player, star) {
-            gameScene.coinSound.play()
-            gameScene.score++
-            star.disableBody(true, true);
-        })
-        this.physics.add.overlap(this.player1, this.enemies, function (player, enemie) {
-            player.die();
-        })
-        this.player1.addAnim('right', [0, 1, 2, 3, 4])
-        this.player1.addAnim('stop', [0])
-        this.player1.addAnim('dead', [12])
-        this.player2.addAnim('hover', [0, 1, 2], 10)
-
-        this.player1.anims.play('right', true);
-        this.player2.anims.play('hover', true);
-
-
-
-        //  Input Events
-        this.cursors = this.input.keyboard.createCursorKeys();
-
-
-        if (DEBUG) {
-            const debugGraphics = this.add.graphics().setAlpha(0.75);
-            this.colide.renderDebug(debugGraphics, {
-                tileColor: null,
-                collidingTileColor: new Phaser.Display.Color(244, 134, 48, 255),
-                faceColor: new Phaser.Display.Color(40, 39, 37, 255)
+    
+            this.bg_4 = this.add.tileSprite(0, 490, 14000, game.config.height, "ground");
+            this.bg_4.setOrigin(0, 0);
+            this.bg_4.setScrollFactor(1.5);
+    
+            this.cameras.main.startFollow(this.player2, true);
+            this.cameras.main.setBounds(0, 0, this.colide.displayWidth, this.colide.displayHeight);
+    
+            this.physics.add.collider(this.player1, this.colide, function (player, tile) {
+                player.hitTile(tile)
+            })
+            this.physics.add.collider(this.player2, this.colide)
+            this.physics.add.overlap(this.player1, this.player2, function (ob1, ob2) {
+                if (ob1.live) {
+                    gameScene.bounceSound.play()
+                    ob1.setVelocityY(-260)
+                }
+            })
+            this.physics.add.overlap(this.player1, gcoins, function collectStar(player, star) {
+                gameScene.coinSound.play()
+                gameScene.score++
+                star.disableBody(true, true);
+            })
+            this.physics.add.overlap(this.player1, this.enemies, function (player, enemie) {
+                player.die();
+            })
+            this.player1.addAnim('right', [0, 1, 2, 3, 4])
+            this.player1.addAnim('stop', [0])
+            this.player1.addAnim('dead', [12])
+            this.player2.addAnim('hover', [0, 1, 2], 10)
+    
+            this.player1.anims.play('right', true);
+            this.player2.anims.play('hover', true);
+    
+    
+    
+            //  Input Events
+            this.cursors = this.input.keyboard.createCursorKeys();
+    
+    
+            if (DEBUG) {
+                const debugGraphics = this.add.graphics().setAlpha(0.75);
+                this.colide.renderDebug(debugGraphics, {
+                    tileColor: null,
+                    collidingTileColor: new Phaser.Display.Color(244, 134, 48, 255),
+                    faceColor: new Phaser.Display.Color(40, 39, 37, 255)
+                });
+            }
+            var music = this.sound.add('bgmusic')
+             music.play();
+            this.bounceSound = this.sound.add('bounce')
+            this.coinSound = this.sound.add('coin')
+            this.oopsSound = this.sound.add('oops')
+            this.score = 0
+            this.text = this.add.text(20, 20, 'Score: ' + this.score, {
+                fontFamily: 'Luckiest Guy',
+                color: '#5E35B1',
+                fontSize: '30px'
             });
-        }
-        var music = this.sound.add('bgmusic')
-        music.play();
-        this.bounceSound = this.sound.add('bounce')
-        this.coinSound = this.sound.add('coin')
-        this.oopsSound = this.sound.add('oops')
-        this.score = 0
-        this.text = this.add.text(20, 20, 'Score: ' + this.score, {
-            fontFamily: 'Luckiest Guy',
-            color: '#5E35B1',
-            fontSize: '30px'
-        });
-        this.text.setScrollFactor(0.0);
-        // this.minimap = this.cameras.add(20, 300, 400, 100).setZoom(0.2).setName('mini');
-        // this.minimap.setBackgroundColor(0x002244);
-        // this.minimap.scrollX = 0;
-        // this.minimap.scrollY = 0;
-       
+            this.text.setScrollFactor(0.0);
+            // this.minimap = this.cameras.add(20, 300, 400, 100).setZoom(0.2).setName('mini');
+            // this.minimap.setBackgroundColor(0x002244);
+            // this.minimap.scrollX = 0;
+            // this.minimap.scrollY = 0;
+           
+    
+        
     }
 
     update() {
@@ -356,10 +360,16 @@ class GameScene extends Phaser.Scene {
         });
         this.text.text = 'Score   : ' + this.score
     }
+    restartGame() {
+        this.registry.destroy() // destroy registry
+        this.events.off()// disable all active events
+        this.sound.stopAll();
+        this.scene.start('End');
+    }
 }
 
 
-let gameScene = new GameScene();
+const gameScene = new GameScene();
 let startScene =new StartScene();
 let endScene = new EndScene();
 
