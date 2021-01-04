@@ -70,6 +70,7 @@
                     const PLAYER2 = "player2"
                     const ENEMIE1 = "enemie1"
                     const DEBUG = false
+                    var flag = true
                     
                     
                     
@@ -161,11 +162,11 @@
                             this.live = true
                         }
                         update(cursors) {
-                            if (this.x > 5100) {
+                            if (this.x > this.scene.arenaWidth) {
                                 this.setX(5101)
-                                this.setVelocityX(0)
                                 this.anims.play('stop', true);
                                 this.scene.sound.stopAll();
+                                this.scene.scene.stop('Game')
                                 this.scene.scene.start('End');
                             } else {
                                 if (this.live) {
@@ -178,18 +179,14 @@
                                     this.setY(40)
                                     if (this.live == false) {
                                         this.disableBody(true, true);
-                                        this.scene.sound.stopAll();
-                                        this.scene.scene.start('End');
+                                        this.scene.restartGame()
                                     }
-                                }
-                                if (this.x > 5200) {
-                                    this.setX(5199)
-                                    this.setVelocityX(0)
                                 }
                             }
                         }
                         die() {
                             this.live = false
+                            this.body.checkCollision.none = true;
                             this.anims.play('dead', true);
                             this.scene.sound.stopAll();
                             this.scene.oopsSound.play()
@@ -221,41 +218,11 @@
                         }
                         create() {
                             this.add.tileSprite(100, 80, 123, 130, "ufo");
-                            this.add.text(230, 20, 'Welcome to Roswell runner ', {
+                            content = ['Welcome to Roswell runner ', 'One of the little bods from area 51', 'Is trying to escape to route 66', "", 'Our plucky alien will need some bus fare though !', 'Help your new chum avoid dangers and collect coins', "", 'Give your alien a boost with your spacecraft ', 'Move your craft with arrow keys', "But don't let your alien chum fall too far !", "", "", 'Click space key to start']
+                            this.add.text(60, 60, content, {
                                 fontFamily: 'Luckiest Guy',
-                                fontSize: '30px'
-                            });
-                            this.add.text(180, 60, 'One of the little bods from area 51', {
-                                fontFamily: 'Luckiest Guy',
-                                fontSize: '30px'
-                            });
-                            this.add.text(220, 100, 'Is trying to escape to route 66', {
-                                fontFamily: 'Luckiest Guy',
-                                fontSize: '30px'
-                            });
-                            this.add.text(90, 140, 'Our plucky alien will need some bus fare though !', {
-                                fontFamily: 'Luckiest Guy',
-                                fontSize: '30px'
-                            });
-                            this.add.text(60, 180, 'Help your new chum avoid dangers and collect coins', {
-                                fontFamily: 'Luckiest Guy',
-                                fontSize: '30px'
-                            });
-                            this.add.text(110, 230, 'Give your alien a boost with your spacecraft ', {
-                                fontFamily: 'Luckiest Guy',
-                                fontSize: '30px'
-                            });
-                            this.add.text(190, 270, 'Move your craft with arrow keys', {
-                                fontFamily: 'Luckiest Guy',
-                                fontSize: '30px'
-                            });
-                            this.add.text(150, 320, "But don't let your alien chum fall too far !", {
-                                fontFamily: 'Luckiest Guy',
-                                fontSize: '30px'
-                            });
-                            this.add.text(260, 380, 'Click space key to start', {
-                                fontFamily: 'Luckiest Guy',
-                                fontSize: '30px'
+                                fontSize: '30px',
+                                align: "center"
                             });
                             this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
                             this.spaceKey.on('down', function (key, event) {
@@ -264,24 +231,24 @@
                     
                         }
                     }
+                    
+                    
                     class EndScene extends Phaser.Scene {
                         constructor() {
                             super("End");
                         }
                         create() {
-                          const text =  this.add.text(370, 120, 'Game over !', {
+                            const text = this.add.text(370, 120, 'Game over !', {
                                 fontFamily: 'Luckiest Guy',
                                 fontSize: '30px'
                             });
-                         const text2 =    this.add.text(280, 220, 'Click space key to restart', {
+                            const text2 = this.add.text(280, 220, 'Click space key to restart', {
                                 fontFamily: 'Luckiest Guy',
                                 fontSize: '30px'
                             });
                             this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
                             this.spaceKey.on('down', function (key, event) {
-                                text.text = ""
-                                text2.text = ""
-                                gameScene.scene.restart();
+                                endScene.scene.start('Game');
                             });
                         }
                     }
@@ -310,22 +277,37 @@
                             this.load.image('rocks', 'assets/Rocks.png');
                             this.load.image('ground', 'assets/Layer1.png');
                             this.load.audio('bgmusic', ['assets/Arcade-game-music-loop.mp3']);
-                            this.load.audio('bounce', ['assets/forceField_001.ogg']);
-                            this.load.audio('coin', ['assets/impactGlass_medium_003.ogg']);
-                            this.load.audio('oops', ['assets/secret.ogg']);
+                            this.load.audio('bounce', ['assets/forceField_001.mp3']);
+                            this.load.audio('coin', ['assets/impactGlass_medium_003.mp3']);
+                            this.load.audio('oops', ['assets/secret.mp3']);
+                    
+                    
                         }
                         create() {
+                    
                             this.bg_1 = this.add.tileSprite(-400, -30, game.config.width + 800, game.config.height, "sky");
                             this.bg_1.setOrigin(0, 0);
                             this.bg_1.setScrollFactor(0.05)
                     
-                            this.bg_2 = this.add.tileSprite(0, -10, 5000, game.config.height, "rocks");
+                            this.bg_2 = this.add.tileSprite(0, -10, this.arenaWidth, game.config.height, "rocks");
                             this.bg_2.setOrigin(0, 0);
                             this.bg_2.setScrollFactor(0.5);
                     
-                            this.bg_3 = this.add.tileSprite(200, 150, 5000, game.config.height, "rocks");
+                            this.bg_3 = this.add.tileSprite(200, 150, this.arenaWidth, game.config.height, "rocks");
                             this.bg_3.setOrigin(0, 0);
                             this.bg_3.setScrollFactor(0.7);
+                    
+                            
+                            const map = this.make.tilemap({
+                                key: 'tilemap'
+                            })
+                            this.arenaWidth = map.widthInPixels
+                            this.arenaHeight = map.heightInPixels
+                            const tileset = map.addTilesetImage('tilesheet_complete', 'tiles')
+                            this.colide = map.createLayer('ground', tileset, 0, 0)
+                            this.colide.setCollisionByProperty({
+                                colide: true
+                            })
                     
                             this.player1 = new Alien(this, 120, 420, PLAYER1)
                             this.player2 = new Ship(this, 420, 420, PLAYER2)
@@ -333,16 +315,8 @@
                             this.enemies.add(new Enemie(this, 4500, 140, ENEMIE1))
                             this.enemies.add(new Enemie(this, 3400, 400, ENEMIE1))
                     
-                            const map = this.make.tilemap({
-                                key: 'tilemap'
-                            })
                     
                     
-                            const tileset = map.addTilesetImage('tilesheet_complete', 'tiles')
-                            this.colide = map.createLayer('ground', tileset, 0, 0)
-                            this.colide.setCollisionByProperty({
-                                colide: true
-                            })
                     
                             const coins = map.getObjectLayer('Object Layer 1')
                             const gcoins = this.physics.add.staticGroup()
@@ -350,7 +324,7 @@
                                 gcoins.create(coins.objects[c].x + 32, coins.objects[c].y, 'coin');
                             }
                     
-                            this.bg_4 = this.add.tileSprite(0, 490, 14000, game.config.height, "ground");
+                            this.bg_4 = this.add.tileSprite(0, 490, this.arenaWidth*1.5, game.config.height, "ground");
                             this.bg_4.setOrigin(0, 0);
                             this.bg_4.setScrollFactor(1.5);
                     
@@ -360,6 +334,7 @@
                             this.physics.add.collider(this.player1, this.colide, function (player, tile) {
                                 player.hitTile(tile)
                             })
+                            console.log(this.player1);
                             this.physics.add.collider(this.player2, this.colide)
                             this.physics.add.overlap(this.player1, this.player2, function (ob1, ob2) {
                                 if (ob1.live) {
@@ -409,11 +384,7 @@
                                 fontSize: '30px'
                             });
                             this.text.setScrollFactor(0.0);
-                            // this.minimap = this.cameras.add(20, 300, 400, 100).setZoom(0.2).setName('mini');
-                            // this.minimap.setBackgroundColor(0x002244);
-                            // this.minimap.scrollX = 0;
-                            // this.minimap.scrollY = 0;
-                           
+                    
                         }
                     
                         update() {
@@ -424,11 +395,17 @@
                             });
                             this.text.text = 'Score   : ' + this.score
                         }
+                        restartGame() {
+                            this.registry.destroy() // destroy registry
+                            this.events.off() // disable all active events
+                            this.sound.stopAll();
+                            this.scene.start('End');
+                        }
                     }
                     
                     
-                    let gameScene = new GameScene();
-                    let startScene =new StartScene();
+                    const gameScene = new GameScene();
+                    let startScene = new StartScene();
                     let endScene = new EndScene();
                     
                     var config = {
