@@ -150,7 +150,7 @@ class StartScene extends Phaser.Scene {
     }
     create() {
         this.add.tileSprite(100, 80, 123, 130, "ufo");
-        content = ['Welcome to Roswell runner ', 'One of the little bods from area 51', 'Is trying to escape to route 66', "", 'Our plucky alien will need some bus fare though !', 'Help your new chum avoid dangers and collect coins', "", 'Give your alien a boost with your spacecraft ', 'Move your craft with arrow keys', "But don't let your alien chum fall too far !", "", "", 'Click space key to start']
+        var content = ['Welcome to Roswell runner ', 'One of the little bods from area 51', 'Is trying to escape to route 66', "", 'Our plucky alien will need some bus fare though !', 'Help your new chum avoid dangers and collect coins', "", 'Give your alien a boost with your spacecraft ', 'Move your craft with arrow keys', "But don't let your alien chum fall too far !", "", "", 'Click space key to start']
         this.add.text(60, 60, content, {
             fontFamily: 'Luckiest Guy',
             fontSize: '30px',
