@@ -245,7 +245,7 @@ class GameScene extends Phaser.Scene {
         this.player2 = new Ship(this, 420, 420, PLAYER2)
         this.enemies = this.add.group()
         this.enemies.add(new Enemie(this, 4500, 140, ENEMIE1))
-       // this.enemies.add(new Enemie(this, 3400, 400, ENEMIE1))
+        this.enemies.add(new Enemie(this, 1 400, 400, ENEMIE1))
 
 
 
